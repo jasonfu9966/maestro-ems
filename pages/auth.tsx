@@ -31,7 +31,7 @@ const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
 export const signInScreen = () => {
-  const [registerFlag, setRegisterFlag] = useState(true);
+  const [registerFlag, setRegisterFlag] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -90,7 +90,7 @@ export const signInScreen = () => {
   return (
     <main // TODO: style this better
       style={{
-        maxWidth: '35%',
+        maxWidth: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -120,7 +120,6 @@ export const signInScreen = () => {
         }}
       />
       {registerFlag ? (
-        // FIXME: this doesn't show up properly
         <div
           style={{
             display: 'flex',
@@ -133,7 +132,13 @@ export const signInScreen = () => {
             placeholder='Confirm Password'
             id='confPass'
             onChange={(e) => {
-              setConfirmPassword(e.target.value);
+              if (e.target.value !== loginPassword) {
+                setPassMatch(false);
+              } else {
+                console.log('passwords match');
+                setPassMatch(true);
+                setConfirmPassword(e.target.value);
+              }
             }}
           />
           <p>Passwords must be eight characters long.</p>
