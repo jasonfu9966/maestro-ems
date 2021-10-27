@@ -9,6 +9,7 @@ import {
   signOut,
 } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { emailRegex, passwordRegex } from '../components/util';
 import React, { useState } from 'react';
 
 // TODO: read up on firebase security rules
@@ -34,7 +35,8 @@ export const signInScreen = () => {
   const [registerFlag, setRegisterFlag] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [validEmail, setValidEmail] = useState(true);
+  const [validPassword, setValidPassword] = useState(true);
   const [passMatch, setPassMatch] = useState(true);
   const [user, setUser] = useState({});
 
@@ -48,10 +50,26 @@ export const signInScreen = () => {
   });
 
   const register = async () => {
-    if (loginPassword !== confirmPassword) {
-      setPassMatch(false);
+    const emailCheck = new RegExp(emailRegex);
+    const passwordCheck = new RegExp(passwordRegex);
+    if (!emailCheck.test(loginEmail)) {
+      console.log('invalid email');
+      setValidEmail(false);
       return;
+    } else {
+      setValidEmail(true);
     }
+
+    if (!passwordCheck.test(loginPassword)) {
+      console.log('invalid password');
+      setValidPassword(false);
+      return;
+    } else {
+      setValidPassword(true);
+    }
+
+    if (!passMatch) return;
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, loginEmail, loginPassword);
       setUser(userCredential.user);
@@ -137,15 +155,30 @@ export const signInScreen = () => {
               } else {
                 console.log('passwords match');
                 setPassMatch(true);
-                setConfirmPassword(e.target.value);
               }
             }}
           />
-          <p>Passwords must be eight characters long.</p>
+          <p>
+            Passwords must be at least eight characters long, include an uppercase and lowercase letter, and a number.
+          </p>
 
           {!passMatch ? (
             <div className='registError' style={{ color: 'red' }}>
               Passwords must match.
+            </div>
+          ) : (
+            <div />
+          )}
+          {!validEmail ? (
+            <div className='registError' style={{ color: 'red' }}>
+              Please enter a valid email address.
+            </div>
+          ) : (
+            <div />
+          )}
+          {!validPassword ? (
+            <div className='registError' style={{ color: 'red' }}>
+              Please enter a valid password.
             </div>
           ) : (
             <div />
