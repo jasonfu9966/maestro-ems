@@ -11,6 +11,7 @@ import {
 import { getFirestore } from 'firebase/firestore';
 import { emailRegex, passwordRegex } from '../components/util';
 import React, { useState } from 'react';
+import styles from '../styles/Home.module.css'
 
 // TODO: read up on firebase security rules
 // TODO: determine if putting this into another file is better
@@ -162,27 +163,11 @@ export const signInScreen = () => {
             Passwords must be at least eight characters long, include an uppercase and lowercase letter, and a number.
           </p>
 
-          {!passMatch ? (
-            <div className='registError' style={{ color: 'red' }}>
-              Passwords must match.
-            </div>
-          ) : (
-            <div />
-          )}
-          {!validEmail ? (
-            <div className='registError' style={{ color: 'red' }}>
-              Please enter a valid email address.
-            </div>
-          ) : (
-            <div />
-          )}
-          {!validPassword ? (
-            <div className='registError' style={{ color: 'red' }}>
-              Please enter a valid password.
-            </div>
-          ) : (
-            <div />
-          )}
+          <div className={styles.registError}>
+            {!passMatch ? (`Passwords must match.`) : (``)}
+            {!validEmail ? (`Please enter a valid email address.`) : (``)}
+            {!validPassword ? (`Please enter a valid password.`) : (``)}
+          </div>
         </div>
       ) : (
         <div />
