@@ -31,8 +31,8 @@ const firebaseConfig = {
 };
 
 // includes firebaase features
-const FirebaseApp = initializeApp(firebaseConfig);
-const Auth = getAuth(FirebaseApp);
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
 
 export const SignInScreen = () => {
   const [registerFlag, setRegisterFlag] = useState(false);
@@ -43,10 +43,10 @@ export const SignInScreen = () => {
   const [passMatch, setPassMatch] = useState(true);
   const [user, setUser] = useState({});
 
-  onAuthStateChanged(Auth, (user) => {
+  onAuthStateChanged(auth, (user) => {
     if (user !== null) {
       setUser(user);
-      console.log(`logged in as ${Auth.currentUser.email}`);
+      console.log(`logged in as ${auth.currentUser.email}`);
     } else {
       console.log(`Not logged in: ${user}`);
     }
@@ -76,7 +76,7 @@ export const SignInScreen = () => {
     if (!passMatch) return;
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(Auth, loginEmail, loginPassword);
+      const userCredential = await createUserWithEmailAndPassword(auth, loginEmail, loginPassword);
       setUser(userCredential.user);
       console.log(`user created: ${userCredential.user.email}`);
 
@@ -89,7 +89,7 @@ export const SignInScreen = () => {
 
   const Login = async () => {
     try {
-      const userCredential = await signInWithEmailAndPassword(Auth, loginEmail, loginPassword);
+      const userCredential = await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
       setUser(userCredential.user);
       console.log(`successful login with username: ${userCredential.user.email}`);
 
@@ -102,8 +102,8 @@ export const SignInScreen = () => {
 
   const Logout = async () => {
     try {
-      console.log(`logging out: ${Auth.currentUser?.email}`);
-      await signOut(Auth);
+      console.log(`logging out: ${auth.currentUser?.email}`);
+      await signOut(auth);
       console.log(`logout successful`);
     } catch (error) {
       console.log(error.message);
@@ -120,10 +120,10 @@ export const SignInScreen = () => {
         justifyContent: 'center',
       }}>
       {!registerFlag ? <h1>Log in to Maestro</h1> : <h1>Register for Maestro</h1>}
-      {Auth.currentUser == null ? (
+      {auth.currentUser == null ? (
         <h3>You are not logged in.</h3>
       ) : (
-        <h3>Logged in as user: {Auth.currentUser?.email}</h3>
+        <h3>Logged in as user: {auth.currentUser?.email}</h3>
       )}
       <input
         type='email'
