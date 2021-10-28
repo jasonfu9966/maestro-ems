@@ -119,3 +119,7 @@
     flex-direction: column;
   }
 }
+
+.registError {
+  color:red;
+}
