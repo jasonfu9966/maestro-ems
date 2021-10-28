@@ -8,10 +8,14 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { emailRegex, passwordRegex } from '../components/util';
 import React, { useState } from 'react';
-import styles from '../styles/Home.module.css'
+import styles from '../styles/Home.module.css';
+import * as yup from 'yup';
+
+// To be used in more depth later
+const yupSchema = yup.object().shape({
+  email: yup.string().email().required(),
+});
 
 // TODO: read up on firebase security rules
 // TODO: determine if putting this into another file is better
@@ -27,12 +31,10 @@ const firebaseConfig = {
 };
 
 // includes firebaase features
-const firebaseApp = initializeApp(firebaseConfig);
+const FirebaseApp = initializeApp(firebaseConfig);
+const Auth = getAuth(FirebaseApp);
 
-const auth = getAuth(firebaseApp);
-const db = getFirestore(firebaseApp);
-
-export const signInScreen = () => {
+export const SignInScreen = () => {
   const [registerFlag, setRegisterFlag] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -41,26 +43,28 @@ export const signInScreen = () => {
   const [passMatch, setPassMatch] = useState(true);
   const [user, setUser] = useState({});
 
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(Auth, (user) => {
     if (user !== null) {
       setUser(user);
-      console.log(`logged in as ${auth.currentUser.email}`);
+      console.log(`logged in as ${Auth.currentUser.email}`);
     } else {
       console.log(`Not logged in: ${user}`);
     }
   });
 
-  const register = async () => {
-    const emailCheck = new RegExp(emailRegex);
-    const passwordCheck = new RegExp(passwordRegex);
-    if (!emailCheck.test(loginEmail)) {
-      console.log('invalid email');
-      setValidEmail(false);
-      return;
-    } else {
-      setValidEmail(true);
-    }
+  const Register = async () => {
+    yupSchema.isValid({ email: loginEmail }).then((valid) => {
+      if (!valid) {
+        console.log('invalid email');
+        setValidEmail(false);
+        return;
+      } else {
+        setValidEmail(true);
+      }
+    });
 
+    // TODO: do this on the Firebase side (implement with error handling)
+    const passwordCheck = new RegExp('^(?=.*[a-z]){1}(?=.*[A-Z]){1}(?=.*[0-9]){1}(?=.{8,})');
     if (!passwordCheck.test(loginPassword)) {
       console.log('invalid password');
       setValidPassword(false);
@@ -72,7 +76,7 @@ export const signInScreen = () => {
     if (!passMatch) return;
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, loginEmail, loginPassword);
+      const userCredential = await createUserWithEmailAndPassword(Auth, loginEmail, loginPassword);
       setUser(userCredential.user);
       console.log(`user created: ${userCredential.user.email}`);
 
@@ -83,9 +87,9 @@ export const signInScreen = () => {
     }
   };
 
-  const login = async () => {
+  const Login = async () => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+      const userCredential = await signInWithEmailAndPassword(Auth, loginEmail, loginPassword);
       setUser(userCredential.user);
       console.log(`successful login with username: ${userCredential.user.email}`);
 
@@ -96,10 +100,10 @@ export const signInScreen = () => {
     }
   };
 
-  const logout = async () => {
+  const Logout = async () => {
     try {
-      console.log(`logging out: ${auth.currentUser?.email}`);
-      await signOut(auth);
+      console.log(`logging out: ${Auth.currentUser?.email}`);
+      await signOut(Auth);
       console.log(`logout successful`);
     } catch (error) {
       console.log(error.message);
@@ -116,10 +120,10 @@ export const signInScreen = () => {
         justifyContent: 'center',
       }}>
       {!registerFlag ? <h1>Log in to Maestro</h1> : <h1>Register for Maestro</h1>}
-      {auth.currentUser == null ? (
+      {Auth.currentUser == null ? (
         <h3>You are not logged in.</h3>
       ) : (
-        <h3>Logged in as user: {auth.currentUser?.email}</h3>
+        <h3>Logged in as user: {Auth.currentUser?.email}</h3>
       )}
       <input
         type='email'
@@ -164,9 +168,9 @@ export const signInScreen = () => {
           </p>
 
           <div className={styles.registError}>
-            {!passMatch ? (`Passwords must match.`) : (``)}
-            {!validEmail ? (`Please enter a valid email address.`) : (``)}
-            {!validPassword ? (`Please enter a valid password.`) : (``)}
+            {!passMatch ? `Passwords must match. ` : ``}
+            {!validEmail ? `Please enter a valid email address. ` : ``}
+            {!validPassword ? `Please enter a valid password.` : ``}
           </div>
         </div>
       ) : (
@@ -175,20 +179,20 @@ export const signInScreen = () => {
 
       {!registerFlag ? (
         <div>
-          <button onClick={login}> Login </button>
+          <button onClick={Login}> Login </button>
           <button onClick={() => setRegisterFlag(true)}> New User? Register </button>
         </div>
       ) : (
         <div>
-          <button onClick={register}> Create Account </button>
+          <button onClick={Register}> Create Account </button>
           <button onClick={() => setRegisterFlag(false)}> Already have an account? Log in </button>
         </div>
       )}
       <div>
-        <button onClick={logout}> Log out </button>
+        <button onClick={Logout}> Log out </button>
       </div>
     </main>
   );
 };
 
-export default signInScreen;
+export default SignInScreen;

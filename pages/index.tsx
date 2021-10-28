@@ -16,8 +16,6 @@ export default function Home() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
       <Navbar />
-      <div>You aren't logged in.</div>
-      {/* <div>You are logged in as </div> */}
       <div>'sup, world?</div>
     </div>
   );
