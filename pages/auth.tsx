@@ -6,6 +6,9 @@ import {
   setPersistence,
   browserLocalPersistence,
   signInWithEmailAndPassword,
+  signInWithRedirect,
+  getRedirectResult,
+  GoogleAuthProvider,
   signOut,
 } from 'firebase/auth';
 import React, { useState } from 'react';
@@ -32,6 +35,7 @@ const firebaseConfig = {
 
 // includes firebaase features
 const firebaseApp = initializeApp(firebaseConfig);
+const googleProvider = new GoogleAuthProvider();
 const auth = getAuth(firebaseApp);
 
 export const SignInScreen = () => {
@@ -98,6 +102,21 @@ export const SignInScreen = () => {
       // TODO: handle error messages
       console.log(error.message);
     }
+  };
+
+  const GoogleSignIn = () => {
+    signInWithRedirect(auth, googleProvider);
+
+    getRedirectResult(auth)
+      .then((result) => {
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+
+        const user = result.user; 
+      })
+      .catch((error) => {
+        //error handling
+      });
   };
 
   const Logout = async () => {
@@ -188,6 +207,9 @@ export const SignInScreen = () => {
           <button onClick={() => setRegisterFlag(false)}> Already have an account? Log in </button>
         </div>
       )}
+      <div>
+        <button onClick={GoogleSignIn}> Sign in with Google </button>
+      </div>
       <div>
         <button onClick={Logout}> Log out </button>
       </div>
