@@ -9,6 +9,7 @@ import {
   signInWithRedirect,
   getRedirectResult,
   GoogleAuthProvider,
+  FacebookAuthProvider,
   signOut,
 } from 'firebase/auth';
 import React, { useState } from 'react';
@@ -36,6 +37,7 @@ const firebaseConfig = {
 // includes firebaase features
 const firebaseApp = initializeApp(firebaseConfig);
 const googleProvider = new GoogleAuthProvider();
+const facebookProvider = new FacebookAuthProvider();
 const auth = getAuth(firebaseApp);
 
 export const SignInScreen = () => {
@@ -112,10 +114,26 @@ export const SignInScreen = () => {
         const credential = GoogleAuthProvider.credentialFromResult(result);
         const token = credential.accessToken;
 
-        const user = result.user; 
+        const user = result.user;
       })
       .catch((error) => {
         //error handling
+      });
+  };
+
+  // TOOD: finish set up on facebook side after domain name procurement
+  const FacebookSignIn = () => {
+    signInWithRedirect(auth, facebookProvider);
+
+    getRedirectResult(auth)
+      .then((result) => {
+        const credential = FacebookAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+
+        const user = result.user;
+      })
+      .catch((error) => {
+        // other error handling
       });
   };
 
@@ -209,6 +227,9 @@ export const SignInScreen = () => {
       )}
       <div>
         <button onClick={GoogleSignIn}> Sign in with Google </button>
+      </div>
+      <div>
+        <button onClick={FacebookSignIn}> Sign in with Facebook </button>
       </div>
       <div>
         <button onClick={Logout}> Log out </button>
